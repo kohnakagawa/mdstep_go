@@ -15,6 +15,11 @@ func Double3Norm(d Double3) float64 {
 	return d.x*d.x + d.y*d.y + d.z*d.z
 }
 
+type Pair struct {
+	i int
+	j int
+}
+
 type Particle struct {
 	pos Double3
 	vel Double3

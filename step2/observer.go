@@ -14,23 +14,21 @@ func (observer *Observer) CalcKineticEnergy(particles []Particle) float64 {
 	return 0.5 * k
 }
 
-func (observer *Observer) CalcPotentialEnergy(particles []Particle) float64 {
+func (observer *Observer) CalcPotentialEnergy(particles []Particle, pairs []Pair) float64 {
 	v := 0.0
 	nParticles := len(particles)
-	for i := 0; i < nParticles-1; i++ {
-		for j := i + 1; j < nParticles; j++ {
-			qi := particles[i].pos
-			qj := particles[j].pos
-			dqij := Double3{qj.x - qi.x, qj.y - qi.y, qj.z - qi.z}
-			dqij = GetMinimumImage(dqij)
-			dq2 := dqij.x*dqij.x + dqij.y*dqij.y + dqij.z*dqij.z
-			if dq2 > Cutoff2 {
-				continue
-			}
-			dq6 := dq2 * dq2 * dq2
-			dq12 := dq6 * dq6
-			v += 4.0*(1.0/dq12-1.0/dq6) + C0
+	for _, pair := range pairs {
+		qi := particles[pair.i].pos
+		qj := particles[pair.j].pos
+		dqij := Double3{qj.x - qi.x, qj.y - qi.y, qj.z - qi.z}
+		dqij = GetMinimumImage(dqij)
+		dq2 := dqij.x*dqij.x + dqij.y*dqij.y + dqij.z*dqij.z
+		if dq2 > Cutoff2 {
+			continue
 		}
+		dq6 := dq2 * dq2 * dq2
+		dq12 := dq6 * dq6
+		v += 4.0*(1.0/dq12-1.0/dq6) + C0
 	}
 	v /= float64(nParticles)
 	return v

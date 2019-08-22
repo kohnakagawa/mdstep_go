@@ -5,15 +5,6 @@ import (
 	"math"
 )
 
-type Pair struct {
-	i int
-	j int
-}
-
-func MakePair(i int, j int) Pair {
-	return Pair{i, j}
-}
-
 type MD struct {
 	observer Observer
 	vars     Variables
@@ -23,7 +14,7 @@ func MakeMdSystem() MD {
 	return MD{Observer{}, Variables{MakeParticles(), 0.0, make([]Pair, 0), 0.0}}
 }
 
-func (md *MD) makePair() {
+func (md *MD) makePairs() {
 	md.vars.pairs = md.vars.pairs[:0]
 	nParticles := len(md.vars.particles)
 	for i := 0; i < nParticles-1; i++ {
@@ -54,7 +45,7 @@ func (md *MD) checkPairs() {
 	md.vars.margin -= vmax * 2.0 * Dt
 	if md.vars.margin < 0.0 {
 		md.vars.margin = Margin
-		md.makePair()
+		md.makePairs()
 	}
 }
 
@@ -68,10 +59,11 @@ func (md *MD) calculate() {
 }
 
 func (md *MD) Run() {
+	md.makePairs()
 	for i := 0; i < NSteps; i++ {
 		if i%NStepsObs == 0 {
 			k := md.observer.CalcKineticEnergy(md.vars.particles)
-			v := md.observer.CalcPotentialEnergy(md.vars.particles)
+			v := md.observer.CalcPotentialEnergy(md.vars.particles, md.vars.pairs)
 			fmt.Println(md.vars.time, k, v, k+v)
 		}
 		md.calculate()
